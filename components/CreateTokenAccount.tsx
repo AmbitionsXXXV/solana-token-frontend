@@ -1,43 +1,38 @@
-import { useConnection, useWallet } from "@solana/wallet-adapter-react";
-import * as web3 from "@solana/web3.js";
-import { LAMPORTS_PER_SOL } from "@solana/web3.js";
-import { FC, useState } from "react";
-import styles from "../styles/Home.module.css";
-
 import {
-  getAssociatedTokenAddress,
-  TOKEN_PROGRAM_ID,
   ASSOCIATED_TOKEN_PROGRAM_ID,
+  TOKEN_PROGRAM_ID,
   createAssociatedTokenAccountInstruction,
-} from "@solana/spl-token";
+  getAssociatedTokenAddress,
+} from '@solana/spl-token'
+import { useConnection, useWallet } from '@solana/wallet-adapter-react'
+import * as web3 from '@solana/web3.js'
+import { FC, useState } from 'react'
+import styles from '../styles/Home.module.css'
 
 export const CreateTokenAccountForm: FC = () => {
-  const [txSig, setTxSig] = useState("");
-  const [tokenAccount, setTokenAccount] = useState("");
-  const { connection } = useConnection();
-  const { publicKey, sendTransaction } = useWallet();
+  const [txSig, setTxSig] = useState('')
+  const [tokenAccount, setTokenAccount] = useState('')
+  const { connection } = useConnection()
+  const { publicKey, sendTransaction } = useWallet()
   const link = () => {
-    return txSig
-      ? `https://explorer.solana.com/tx/${txSig}?cluster=devnet`
-      : "";
-  };
+    return txSig ? `https://explorer.solana.com/tx/${txSig}?cluster=devnet` : ''
+  }
 
-  const createTokenAccount = async (event) => {
-    event.preventDefault();
-    if (!connection || !publicKey) {
-      return;
-    }
-    const transaction = new web3.Transaction();
-    const owner = new web3.PublicKey(event.target.owner.value);
-    const mint = new web3.PublicKey(event.target.mint.value);
+  const createTokenAccount = async event => {
+    event.preventDefault()
+    if (!connection || !publicKey) return
+
+    const transaction = new web3.Transaction()
+    const owner = new web3.PublicKey(event.target.owner.value)
+    const mint = new web3.PublicKey(event.target.mint.value)
 
     const associatedToken = await getAssociatedTokenAddress(
       mint,
       owner,
       false,
       TOKEN_PROGRAM_ID,
-      ASSOCIATED_TOKEN_PROGRAM_ID
-    );
+      ASSOCIATED_TOKEN_PROGRAM_ID,
+    )
 
     transaction.add(
       createAssociatedTokenAccountInstruction(
@@ -46,19 +41,20 @@ export const CreateTokenAccountForm: FC = () => {
         owner,
         mint,
         TOKEN_PROGRAM_ID,
-        ASSOCIATED_TOKEN_PROGRAM_ID
-      )
-    );
+        ASSOCIATED_TOKEN_PROGRAM_ID,
+      ),
+    )
 
-    sendTransaction(transaction, connection).then((sig) => {
-      setTxSig(sig);
-      setTokenAccount(associatedToken.toString());
-    });
-  };
+    sendTransaction(transaction, connection).then(sig => {
+      setTxSig(sig)
+      setTokenAccount(associatedToken.toString())
+    })
+  }
 
   return (
     <div>
       <br />
+
       {publicKey ? (
         <form onSubmit={createTokenAccount} className={styles.form}>
           <label htmlFor="owner">Token Mint:</label>
@@ -84,6 +80,7 @@ export const CreateTokenAccountForm: FC = () => {
       ) : (
         <span></span>
       )}
+
       {txSig ? (
         <div>
           <p>Token Account Address: {tokenAccount}</p>
@@ -92,5 +89,5 @@ export const CreateTokenAccountForm: FC = () => {
         </div>
       ) : null}
     </div>
-  );
-};
+  )
+}

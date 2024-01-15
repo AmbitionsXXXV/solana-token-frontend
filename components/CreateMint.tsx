@@ -1,37 +1,32 @@
-import { useConnection, useWallet } from "@solana/wallet-adapter-react";
-import * as web3 from "@solana/web3.js";
-import { FC, useState } from "react";
-import styles from "../styles/Home.module.css";
 import {
   MINT_SIZE,
   TOKEN_PROGRAM_ID,
-  getMinimumBalanceForRentExemptMint,
   createInitializeMintInstruction,
-} from "@solana/spl-token";
+  getMinimumBalanceForRentExemptMint,
+} from '@solana/spl-token'
+import { useConnection, useWallet } from '@solana/wallet-adapter-react'
+import * as web3 from '@solana/web3.js'
+import { FC, useState } from 'react'
+import styles from '../styles/Home.module.css'
 
 export const CreateMintForm: FC = () => {
-  const [txSig, setTxSig] = useState("");
-  const [mint, setMint] = useState("");
+  const [txSig, setTxSig] = useState('')
+  const [mint, setMint] = useState('')
 
-  const { connection } = useConnection();
-  const { publicKey, sendTransaction } = useWallet();
-  const link = () => {
-    return txSig
-      ? `https://explorer.solana.com/tx/${txSig}?cluster=devnet`
-      : "";
-  };
+  const { connection } = useConnection()
+  const { publicKey, sendTransaction } = useWallet()
+  const link = () =>
+    txSig ? `https://explorer.solana.com/tx/${txSig}?cluster=devnet` : ''
 
-  const createMint = async (event) => {
-    event.preventDefault();
-    if (!connection || !publicKey) {
-      return;
-    }
+  const createMint = async event => {
+    event.preventDefault()
+    if (!connection || !publicKey) return
 
-    const mint = web3.Keypair.generate();
+    const mint = web3.Keypair.generate()
 
-    const lamports = await getMinimumBalanceForRentExemptMint(connection);
+    const lamports = await getMinimumBalanceForRentExemptMint(connection)
 
-    const transaction = new web3.Transaction();
+    const transaction = new web3.Transaction()
 
     transaction.add(
       web3.SystemProgram.createAccount({
@@ -46,17 +41,17 @@ export const CreateMintForm: FC = () => {
         0,
         publicKey,
         publicKey,
-        TOKEN_PROGRAM_ID
-      )
-    );
+        TOKEN_PROGRAM_ID,
+      ),
+    )
 
     sendTransaction(transaction, connection, {
       signers: [mint],
-    }).then((sig) => {
-      setTxSig(sig);
-      setMint(mint.publicKey.toString());
-    });
-  };
+    }).then(sig => {
+      setTxSig(sig)
+      setMint(mint.publicKey.toString())
+    })
+  }
 
   return (
     <div>
@@ -77,5 +72,5 @@ export const CreateMintForm: FC = () => {
         </div>
       ) : null}
     </div>
-  );
-};
+  )
+}

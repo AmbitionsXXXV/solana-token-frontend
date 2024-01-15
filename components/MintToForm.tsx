@@ -1,65 +1,63 @@
-import { useConnection, useWallet } from "@solana/wallet-adapter-react";
-import * as web3 from "@solana/web3.js";
-import { LAMPORTS_PER_SOL } from "@solana/web3.js";
-import { FC, useState } from "react";
-import styles from "../styles/Home.module.css";
 import {
-  createMintToInstruction,
-  getAssociatedTokenAddress,
-  TOKEN_PROGRAM_ID,
   ASSOCIATED_TOKEN_PROGRAM_ID,
+  TOKEN_PROGRAM_ID,
+  createMintToInstruction,
   getAccount,
-} from "@solana/spl-token";
+  getAssociatedTokenAddress,
+} from '@solana/spl-token'
+import { useConnection, useWallet } from '@solana/wallet-adapter-react'
+import * as web3 from '@solana/web3.js'
+import { FC, useState } from 'react'
+import styles from '../styles/Home.module.css'
 
 export const MintToForm: FC = () => {
-  const [txSig, setTxSig] = useState("");
-  const [tokenAccount, setTokenAccount] = useState("");
-  const [balance, setBalance] = useState("");
-  const { connection } = useConnection();
-  const { publicKey, sendTransaction } = useWallet();
+  const [txSig, setTxSig] = useState('')
+  const [, setTokenAccount] = useState('')
+  const [balance, setBalance] = useState('')
+  const { connection } = useConnection()
+  const { publicKey, sendTransaction } = useWallet()
   const link = () => {
-    return txSig
-      ? `https://explorer.solana.com/tx/${txSig}?cluster=devnet`
-      : "";
-  };
+    return txSig ? `https://explorer.solana.com/tx/${txSig}?cluster=devnet` : ''
+  }
 
-  const mintTo = async (event) => {
-    event.preventDefault();
+  const mintTo = async event => {
+    event.preventDefault()
     if (!connection || !publicKey) {
-      return;
+      return
     }
-    const transaction = new web3.Transaction();
+    const transaction = new web3.Transaction()
 
-    const mintPubKey = new web3.PublicKey(event.target.mint.value);
-    const recipientPubKey = new web3.PublicKey(event.target.recipient.value);
-    const amount = event.target.amount.value;
+    const mintPubKey = new web3.PublicKey(event.target.mint.value)
+    const recipientPubKey = new web3.PublicKey(event.target.recipient.value)
+    const amount = event.target.amount.value
 
     const associatedToken = await getAssociatedTokenAddress(
       mintPubKey,
       recipientPubKey,
       false,
       TOKEN_PROGRAM_ID,
-      ASSOCIATED_TOKEN_PROGRAM_ID
-    );
+      ASSOCIATED_TOKEN_PROGRAM_ID,
+    )
 
     transaction.add(
-      createMintToInstruction(mintPubKey, associatedToken, publicKey, amount)
-    );
+      createMintToInstruction(mintPubKey, associatedToken, publicKey, amount),
+    )
 
-    const signature = await sendTransaction(transaction, connection);
+    const signature = await sendTransaction(transaction, connection)
 
-    await connection.confirmTransaction(signature, "confirmed");
+    await connection.confirmTransaction(signature, 'confirmed')
 
-    setTxSig(signature);
-    setTokenAccount(associatedToken.toString());
+    setTxSig(signature)
+    setTokenAccount(associatedToken.toString())
 
-    const account = await getAccount(connection, associatedToken);
-    setBalance(account.amount.toString());
-  };
+    const account = await getAccount(connection, associatedToken)
+    setBalance(account.amount.toString())
+  }
 
   return (
     <div>
       <br />
+
       {publicKey ? (
         <form onSubmit={mintTo} className={styles.form}>
           <label htmlFor="mint">Token Mint:</label>
@@ -93,6 +91,7 @@ export const MintToForm: FC = () => {
       ) : (
         <span></span>
       )}
+
       {txSig ? (
         <div>
           <p>Token Balance: {balance} </p>
@@ -101,5 +100,5 @@ export const MintToForm: FC = () => {
         </div>
       ) : null}
     </div>
-  );
-};
+  )
+}
