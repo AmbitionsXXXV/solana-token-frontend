@@ -1,13 +1,13 @@
+import {
+  MINT_SIZE,
+  TOKEN_PROGRAM_ID,
+  createInitializeMintInstruction,
+  getMinimumBalanceForRentExemptMint,
+} from '@solana/spl-token'
 import { useConnection, useWallet } from '@solana/wallet-adapter-react'
 import * as web3 from '@solana/web3.js'
 import { FC, useState } from 'react'
 import styles from '../styles/Home.module.css'
-import {
-  getMinimumBalanceForRentExemptMint,
-  MINT_SIZE,
-  TOKEN_PROGRAM_ID,
-  createInitializeMintInstruction,
-} from '@solana/spl-token'
 
 export const CreateMintForm: FC = () => {
   const [txSig, setTxSig] = useState('')
@@ -45,6 +45,7 @@ export const CreateMintForm: FC = () => {
         lamports,
         programId: TOKEN_PROGRAM_ID,
       }),
+      // 初始新的 token 账户
       createInitializeMintInstruction(
         mint.publicKey,
         0,
